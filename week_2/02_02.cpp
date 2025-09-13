@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <cmath>
-#include <array>
 #include <limits>
 
 int main()
