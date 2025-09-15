@@ -14,7 +14,7 @@
 
     const double res = (std::pow(first, n) - std::pow(second, n)) / sqrt5;
 
-    return static_cast<int>(res);
+    return static_cast<int>(std::round(res));
 }
 
 // результат совпадает с честным вычислением чисел фиб. вплоть до n = 47. При n = 47 значение res превышает max
