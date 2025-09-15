@@ -9,8 +9,8 @@ int main() {
     std::cout << "Введите символ: ";
     std::cin >> ch;
 
-    const auto code = static_cast<uint>(ch);
-    std::cout << "Символ '" << ch << "' (код " << code << ") принадлежит к классу: ";
+//    const auto code = static_cast<uint>(ch);
+//    std::cout << "Символ '" << ch << "' (код " << code << ") принадлежит к классу: ";
 
     switch (ch) {
     case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G':
