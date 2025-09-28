@@ -2,7 +2,7 @@
 // Created by ivankhripunov on 28.09.2025.
 //
 
-#include "iostream"
+#include <iostream>
 
 int main() {
     std::size_t N;
