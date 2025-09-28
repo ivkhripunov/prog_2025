@@ -5,17 +5,9 @@ set(CMAKE_CXX_STANDARD 23)
 
 file(GLOB_RECURSE ALL_CPP_FILES "code/*.cpp")
 
-set(MY_CPP_FILES "")
-foreach(cpp_file ${ALL_CPP_FILES})
-    get_filename_component(file_name ${cpp_file} NAME)
-    if(NOT file_name MATCHES "CMakeCXXCompilerId|CMakeCCompilerId")
-        list(APPEND MY_CPP_FILES ${cpp_file})
-    endif()
-endforeach()
-
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-foreach(cpp_file ${MY_CPP_FILES})
+foreach(cpp_file ${ALL_CPP_FILES})
     get_filename_component(target_name ${cpp_file} NAME_WE)
     add_executable(${target_name} ${cpp_file})
 
