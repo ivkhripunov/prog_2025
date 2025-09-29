@@ -6,12 +6,12 @@
 #include <vector>
 
 int main() {
-    constexpr std::size_t MAX = 100;
-    std::vector<std::size_t> cache(MAX, 0);
+    constexpr std::size_t max_number = 100;
+    std::vector<std::size_t> cache(max_number, 0);
 
     std::size_t max_len = 0;
     std::size_t max_len_init = 0;
-    for (std::size_t init_number = 1; init_number <= MAX; ++init_number) {
+    for (std::size_t init_number = 1; init_number <= max_number; ++init_number) {
         unsigned long long int curr_number = init_number;
         std::size_t len = 1;
 

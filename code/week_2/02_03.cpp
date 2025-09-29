@@ -5,7 +5,7 @@
 #include <iostream>
 
 int main() {
-    char ch;
+    char ch{};
     std::cout << "Enter symbols: ";
     std::cin >> ch;
 
@@ -30,7 +30,7 @@ int main() {
         case '?':
         case '\'':
         case '"':
-            std::cout << "знаки препинания";
+            std::cout << "Punctuation mark";
             break;
 
         default:
