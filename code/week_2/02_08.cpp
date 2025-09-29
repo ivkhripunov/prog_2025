@@ -7,7 +7,8 @@
 
 int main() {
     constexpr std::size_t max_number = 100;
-    std::vector<std::size_t> cache(max_number, 0);
+    std::vector<std::size_t> cache;
+    cache.reserve(max_number);
 
     std::size_t max_len = 0;
     std::size_t max_len_init = 0;
@@ -16,8 +17,8 @@ int main() {
         std::size_t len = 1;
 
         while (curr_number != 1) {
-            if (curr_number < cache.size() && cache[curr_number] != 0) {
-                len += cache[curr_number] - 1;
+            if (curr_number < cache.size()) {
+                len += cache[curr_number - 1] - 1;
                 break;
             }
 
@@ -25,7 +26,7 @@ int main() {
             len++;
         }
 
-        cache[init_number] = len;
+        cache.push_back(len);
 
         if (len > max_len) {
             max_len = len;
@@ -33,6 +34,6 @@ int main() {
         }
     }
 
-    std::cout << "Наибольшая длина последовательности Коллатца: " << max_len << std::endl;
-    std::cout << "Начальное значение: " << max_len_init << std::endl;
+    std::cout << "Max Kollatz length: " << max_len << std::endl;
+    std::cout << "Initial number: " << max_len_init << std::endl;
 }
