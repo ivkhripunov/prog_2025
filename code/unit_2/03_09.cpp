@@ -52,13 +52,7 @@ public:
         return temp;
     }
 
-    friend bool operator==(const IPv4 &lhs, const IPv4 &rhs) {
-        return lhs.data == rhs.data;
-    }
-
-    friend auto operator<=>(const IPv4 &lhs, const IPv4 &rhs) {
-        return lhs.data <=> rhs.data;
-    }
+    friend auto operator<=>(const IPv4 &lhs, const IPv4 &rhs) = default;
 
     friend std::ostream &operator<<(std::ostream &os, const IPv4 &ip) {
         os << static_cast<int>(ip.data[0]) << '.'
