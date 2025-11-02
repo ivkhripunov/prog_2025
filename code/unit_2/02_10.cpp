@@ -6,10 +6,14 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cstddef>
 #include <numeric>
 #include <utility>
+#include <gtest/gtest.h>
 #include <vector>
+
+[[nodiscard]] int median_of_three(const int a, const int b, const int c) {
+    return std::clamp(a, std::min(b, c), std::max(b, c));
+}
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,35 +29,26 @@ void order(std::vector<int> &vector, std::size_t left, std::size_t right) {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-void merge(std::vector<int> &vector_1, std::size_t left, std::size_t right) {
-    auto middle = std::midpoint(left, right), size = right - left;
-
-    std::vector<int> vector_2(size, 0);
-
-    for (auto i = left, j = middle, k = 0uz; k < size; ++k) {
-        if (i < middle && ((j < right && vector_1[i] <= vector_1[j]) || j == right)) {
-            vector_2[k] = vector_1[i++];
-        } else {
-            vector_2[k] = vector_1[j++];
-        }
-    }
-
-    for (auto i = 0uz, j = 0uz; j < size; ++j) {
-        vector_1[left + i++] = vector_2[j];
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////////
-
 void split(std::vector<int> &vector, std::size_t left, std::size_t right) {
     if (right - left > 16) {
-        auto middle = std::midpoint(left, right);
+        const auto middle = std::midpoint(left, right);
+        const int pivot = median_of_three(vector.front(), vector[middle], vector.back());
+        std::size_t i = left;
+        std::size_t j = right - 1;
 
-        split(vector, left, middle);
+        while (i <= j) {
+            while (vector[i] < pivot) ++i;
+            while (vector[j] > pivot) --j;
 
-        split(vector, middle, right);
+            if (i <= j) {
+                std::swap(vector[i], vector[j]);
+                ++i;
+                --j;
+            }
+        }
 
-        merge(vector, left, right);
+        if (left < j) split(vector, left, j + 1);
+        if (i < right) split(vector, i, right);
     } else {
         order(vector, left, right);
     }
@@ -67,7 +62,7 @@ void sort(std::vector<int> &vector) {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-int main() {
+TEST(TASK_02_10, QSORT) {
     auto size = 1'000uz;
 
 //  ---------------------------------------
@@ -86,7 +81,7 @@ int main() {
 
 //  ---------------------------------------
 
-    assert(std::ranges::is_sorted(vector));
+    ASSERT_TRUE(std::ranges::is_sorted(vector));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
