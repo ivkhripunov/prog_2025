@@ -1,102 +1,257 @@
 //
-// Created by ivankhripunov on 01.11.2025.
+// Created by ivankhripunov on 02.11.2025.
 //
 
+#include <iostream>
 #include <gtest/gtest.h>
-#include <numbers>
-#include <cmath>
 
-class Triangle {
+class List {
 private:
-    double side_a;
-    double side_b;
-    double side_c;
+    struct Node {
+        int value;
+        Node* next;
+
+        Node(int val, Node* nxt = nullptr) : value(val), next(nxt) {}
+    };
+
+    Node* head = nullptr;
+    Node* tail = nullptr;
 
 public:
-    Triangle(const double a, const double b, const double c) : side_a(a), side_b(b), side_c(c) {}
-
-    [[nodiscard]] double perimeter() const {
-        return side_a + side_b + side_c;
+    ~List() {
+        while (head != nullptr) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+        }
+        tail = nullptr;
     }
 
-    [[nodiscard]] double area() const {
-        const double p = perimeter() / 2.0;
-        return std::sqrt(p * (p - side_a) * (p - side_b) * (p - side_c));
+    [[nodiscard]] bool empty() const {
+        return head == nullptr;
     }
 
-    [[nodiscard]] double get_side_a() const { return side_a; }
+    void show() const {
+        Node* current = head;
+        while (current != nullptr) {
+            std::cout << current->value << " ";
+            current = current->next;
+        }
+        std::cout << std::endl;
+    }
 
-    [[nodiscard]] double get_side_b() const { return side_b; }
+    void push_front(int value) {
+        Node* new_node = new Node(value, head);
+        head = new_node;
+        if (tail == nullptr) {
+            tail = head;
+        }
+    }
 
-    [[nodiscard]] double get_side_c() const { return side_c; }
+    void push_back(int value) {
+        Node* new_node = new Node(value);
+        if (empty()) {
+            head = tail = new_node;
+        } else {
+            tail->next = new_node;
+            tail = new_node;
+        }
+    }
+
+    void pop_front() {
+        if (empty()) {
+            return;
+        }
+
+        Node* temp = head;
+        head = head->next;
+        delete temp;
+
+        if (head == nullptr) {
+            tail = nullptr;
+        }
+    }
+
+    void pop_back() {
+        if (empty()) {
+            return;
+        }
+
+        if (head == tail) {
+            delete head;
+            head = tail = nullptr;
+            return;
+        }
+
+        Node* current = head;
+        while (current->next != tail) {
+            current = current->next;
+        }
+
+        delete tail;
+        tail = current;
+        tail->next = nullptr;
+    }
+
+    [[nodiscard]] int get() const {
+        if (empty()) {
+            throw std::runtime_error("empty");
+        }
+
+        Node* slow = head;
+        Node* fast = head;
+
+        while (fast->next != nullptr && fast->next->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+
+        return slow->value;
+    }
 };
 
-class Square {
-private:
-    double side;
+TEST(LIST, EMPTY) {
+    List list;
+    ASSERT_TRUE(list.empty());
 
-public:
-    Square(const double s) : side(s) {}
+    ASSERT_THROW(list.get(), std::runtime_error);
 
-    [[nodiscard]] double perimeter() const {
-        return 4.0 * side;
-    }
-
-    [[nodiscard]] double area() const {
-        return side * side;
-    }
-
-    [[nodiscard]] double get_side() const { return side; }
-};
-
-class Circle {
-private:
-    double radius;
-
-public:
-    Circle(const double r) : radius(r) {}
-
-    [[nodiscard]] double perimeter() const {
-        return 2.0 * std::numbers::pi * radius;
-    }
-
-    [[nodiscard]] double area() const {
-        return std::numbers::pi * radius * radius;
-    }
-
-    [[nodiscard]] double get_radius() const { return radius; }
-};
-
-TEST(TASK_03_03, TRIANGLE) {
-    const Triangle triangle = {3, 4, 5};
-
-    ASSERT_DOUBLE_EQ(triangle.perimeter(), 12.0);
-
-    ASSERT_DOUBLE_EQ(triangle.area(), 6.0);
-
-    ASSERT_DOUBLE_EQ(triangle.get_side_a(), 3.0);
-    ASSERT_DOUBLE_EQ(triangle.get_side_b(), 4.0);
-    ASSERT_DOUBLE_EQ(triangle.get_side_c(), 5.0);
+    ASSERT_NO_THROW(list.pop_front());
+    ASSERT_NO_THROW(list.pop_back());
 }
 
-TEST(TASK_03_03, SQUARE) {
-    const Square square{5};
+TEST(LIST, PUSH_POP_FRONT) {
+    List list;
 
-    ASSERT_DOUBLE_EQ(square.perimeter(), 20.0);
+    list.push_front(1);
+    ASSERT_FALSE(list.empty());
 
-    ASSERT_DOUBLE_EQ(square.area(), 25.0);
+    list.push_front(2);
+    list.push_front(3);
 
-    ASSERT_DOUBLE_EQ(square.get_side(), 5.0);
+    list.pop_front();
+    list.pop_front();
+    list.pop_front();
+
+    ASSERT_TRUE(list.empty());
 }
 
-TEST(TASK_03_04, CIRCLE) {
-    constexpr double pi = std::numbers::pi;
+TEST(LIST, PUSH_POP_BACK) {
+    List list;
 
-    const Circle square{5};
+    list.push_back(1);
+    ASSERT_FALSE(list.empty());
 
-    ASSERT_DOUBLE_EQ(square.perimeter(), 2 * pi * 5);
+    list.push_back(2);
+    list.push_back(3);
 
-    ASSERT_DOUBLE_EQ(square.area(), pi * 5 * 5);
+    list.pop_back();
+    list.pop_back();
+    list.pop_back();
 
-    ASSERT_DOUBLE_EQ(square.get_radius(), 5);
+    ASSERT_TRUE(list.empty());
+}
+
+TEST(LIST, OPERATIONS) {
+    List list;
+
+    list.push_front(2);
+    list.push_back(3);
+    list.push_front(1);
+
+    list.pop_front();
+    list.pop_back();
+
+    ASSERT_FALSE(list.empty());
+}
+
+TEST(LIST, MIDDLE_ELEMENT) {
+    List list;
+
+    list.push_back(1);
+    list.push_back(2);
+    list.push_back(3);
+    ASSERT_EQ(list.get(), 2);
+
+    list.push_back(4);
+    ASSERT_EQ(list.get(), 2);
+
+    list.pop_back();
+    list.pop_back();
+    list.pop_back();
+    list.push_back(1);
+    ASSERT_EQ(list.get(), 1);
+}
+
+TEST(LIST, SHOW) {
+    List list;
+
+    list.push_back(1);
+    list.push_back(2);
+    list.push_back(3);
+
+    ASSERT_NO_THROW(list.show());
+}
+
+TEST(LIST, MEMORY) {
+    List* list = new List;
+
+    list->push_back(1);
+    list->push_back(2);
+    list->push_back(3);
+
+    ASSERT_NO_THROW(delete list);
+}
+
+TEST(LIST, EDGE_CASE) {
+    List list;
+
+    list.push_front(1);
+    ASSERT_EQ(list.get(), 1);
+    list.pop_front();
+    ASSERT_TRUE(list.empty());
+
+    list.push_back(1);
+    ASSERT_EQ(list.get(), 1);
+    list.pop_back();
+    ASSERT_TRUE(list.empty());
+
+    list.push_front(1);
+    list.push_back(2);
+    list.pop_front();
+    ASSERT_FALSE(list.empty());
+    list.pop_back();
+    ASSERT_TRUE(list.empty());
+}
+
+TEST(LIST, INTEGRATION) {
+    List list;
+
+    ASSERT_TRUE(list.empty());
+
+    list.push_front(10);
+    list.push_back(20);
+    list.push_front(5);
+    list.push_back(30);
+    list.push_front(1);
+
+    ASSERT_EQ(list.get(), 10);
+
+    list.pop_front();
+    list.pop_back();
+
+    ASSERT_EQ(list.get(), 10);
+
+    list.pop_front();
+    list.pop_front();
+    list.pop_front();
+
+    ASSERT_TRUE(list.empty());
+
+    list.push_back(100);
+
+    list.push_front(50);
+
+    ASSERT_FALSE(list.empty());
+    ASSERT_EQ(list.get(), 50);
 }
