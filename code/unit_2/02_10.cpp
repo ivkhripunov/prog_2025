@@ -37,11 +37,13 @@ void split(std::vector<int> &vector, std::size_t left, std::size_t right) {
         std::size_t j = right - 1;
 
         while (i <= j) {
-            while (vector[i] <= pivot) ++i;
-            while (vector[j] >= pivot) --j;
+            while (vector[i] < pivot) ++i;
+            while (vector[j] > pivot) --j;
 
-            if (i < j) {
-                std::swap(vector[i], vector[j]);
+            if (i <= j) {
+                if (i != j) {
+                    std::swap(vector[i], vector[j]);
+                }
                 ++i;
                 --j;
             }
