@@ -53,15 +53,17 @@ class Circle {
 private:
     double radius;
 
+    static constexpr double pi = std::numbers::pi;
+
 public:
     Circle(const double r) : radius(r) {}
 
     [[nodiscard]] double perimeter() const {
-        return 2.0 * std::numbers::pi * radius;
+        return 2.0 * pi * radius;
     }
 
     [[nodiscard]] double area() const {
-        return std::numbers::pi * radius * radius;
+        return pi * radius * radius;
     }
 
     [[nodiscard]] double get_radius() const { return radius; }
