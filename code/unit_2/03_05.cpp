@@ -37,13 +37,13 @@ public:
     }
 };
 
-class Client : public Adapter_v1, public Adapter_v2 {
+class Client final : public Adapter_v1, public Adapter_v2 {
 public:
-    std::string test_v1() override {
+    std::string test_v1() override final {
         return Adapter_v1::test_v1();
     }
 
-    std::string test_v2() override {
+    std::string test_v2() override final {
         return Adapter_v2::test_v2();
     }
 };
