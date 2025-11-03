@@ -16,21 +16,34 @@ class Entity {
         return line + "_v2";
     }
 
+    friend class EntityAttorney;
+};
+
+class EntityAttorney {
+private:
+    [[nodiscard]] static std::string call_test_v1(const Entity& entity) {
+        return entity.test_v1();
+    }
+
+    [[nodiscard]] static std::string call_test_v2(const Entity& entity) {
+        return entity.test_v2();
+    }
+
     friend class Tester_v1;
     friend class Tester_v2;
 };
 
 class Tester_v1 {
 public:
-    static std::string test_v1(const Entity &entity) {
-        return entity.test_v1();
+    static std::string test_v1(const Entity& entity) {
+        return EntityAttorney::call_test_v1(entity);
     }
 };
 
 class Tester_v2 {
 public:
-    static std::string test_v2(const Entity &entity) {
-        return entity.test_v2();
+    static std::string test_v2(const Entity& entity) {
+        return EntityAttorney::call_test_v2(entity);
     }
 };
 
