@@ -3,7 +3,7 @@ project(prog_2025)
 
 set(CMAKE_CXX_STANDARD 23)
 
-find_package(GTest REQUIRED)
+add_subdirectory(third_party/googletest)
 
 include(CTest)
 enable_testing()
