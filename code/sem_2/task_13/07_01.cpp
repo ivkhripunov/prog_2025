@@ -3,7 +3,6 @@
 //
 
 #include <gtest/gtest.h>
-#include <iostream>
 #include <cmath>
 #include <limits>
 #include <optional>
