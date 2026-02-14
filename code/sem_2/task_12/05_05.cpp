@@ -14,8 +14,55 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
+template<typename Derived>
+class addable {
+    friend Derived operator+(Derived lhs, const Derived& rhs) { return lhs += rhs; }
+};
+
+template<typename Derived>
+class subtractable {
+    friend Derived operator-(Derived lhs, const Derived& rhs) { return lhs -= rhs; }
+};
+
+template<typename Derived>
+class multipliable {
+    friend Derived operator*(Derived lhs, const Derived& rhs) { return lhs *= rhs; }
+};
+
+template<typename Derived>
+class dividable {
+    friend Derived operator/(Derived lhs, const Derived& rhs) { return lhs /= rhs; }
+};
+
+template<typename Derived>
+class incrementable {
+    friend Derived& operator++(Derived& obj) { return obj += 1; }
+    friend Derived operator++(Derived& obj, int) {
+        Derived tmp(obj);
+        ++obj;
+        return tmp;
+    }
+};
+
+template<typename Derived>
+class decrementable {
+    friend Derived& operator--(Derived& obj) { return obj -= 1; }
+    friend Derived operator--(Derived& obj, int) {
+        Derived tmp(obj);
+        --obj;
+        return tmp;
+    }
+};
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 template<typename T>
-class Rational {
+class Rational : public addable<Rational<T>>,
+                 public subtractable<Rational<T>>,
+                 public multipliable<Rational<T>>,
+                 public dividable<Rational<T>>,
+                 public incrementable<Rational<T>>,
+                 public decrementable<Rational<T>> {
 public :
 
     /* explicit */ Rational(T num = 0, T den = 1) : m_num(num), m_den(den) {
@@ -68,42 +115,6 @@ public :
 
 //  -------------------------------------------------------------------------------------------
 
-    auto const operator++(int) {
-        auto x = *this;
-        *this += 1;
-        return x;
-    }
-
-    auto const operator--(int) {
-        auto x = *this;
-        *this -= 1;
-        return x;
-    }
-
-//  -------------------------------------------------------------------------------------------
-
-    auto &operator++() {
-        *this += 1;
-        return *this;
-    }
-
-    auto &operator--() {
-        *this -= 1;
-        return *this;
-    }
-
-//  -------------------------------------------------------------------------------------------
-
-    friend auto operator+(Rational lhs, Rational const &rhs) { return lhs += rhs; }
-
-    friend auto operator-(Rational lhs, Rational const &rhs) { return lhs -= rhs; }
-
-    friend auto operator*(Rational lhs, Rational const &rhs) { return lhs *= rhs; }
-
-    friend auto operator/(Rational lhs, Rational const &rhs) { return lhs /= rhs; }
-
-//  -------------------------------------------------------------------------------------------
-
     friend auto operator<=>(Rational const &lhs, Rational const &rhs) {
         return lhs.m_num * rhs.m_den <=> rhs.m_num * lhs.m_den;
     }
@@ -144,7 +155,6 @@ private :
 
     T m_num = 0, m_den = 1;
 };
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
