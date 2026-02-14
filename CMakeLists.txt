@@ -32,7 +32,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 file(GLOB_RECURSE ALL_CPP_FILES "code/*.cpp")
 list(REMOVE_ITEM ALL_CPP_FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/code/sem_2/task_12/06_05/06_05.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/code/sem_2/task_12/06_05/library.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/code/sem_2/task_12/06_05/library_v1.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/code/sem_2/task_12/06_05/library_v2.cpp"
 )
@@ -67,7 +66,6 @@ target_include_directories(shared_v2 PRIVATE ${Boost_INCLUDE_DIRS})
 
 add_executable(06_05
         code/sem_2/task_12/06_05/06_05.cpp
-        code/sem_2/task_12/06_05/library.cpp
 )
 target_include_directories(06_05 PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/code/sem_2/task_12/06_05
