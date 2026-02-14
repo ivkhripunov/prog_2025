@@ -1,0 +1,33 @@
+void test ( Person const & person )
+{
+    std :: cout << " test : " << person . name () << ’\n’;
+    if ( person . grade () == 10 || person . salary () > 1’000 ’000)
+    {
+        save ( Status :: success , person . id () ) ;
+    }
+    else
+    {
+        save ( Status :: failure , person . id () ) ;
+    }
+}
+
+Условный оператор if создаёт две ветки выполнения в зависимости от результата логического выражения
+person.grade() == 10 || person.salary() > 1'000'000.
+
+Логический оператор || также создаёт нормальное ветвление:
+если person.grade() == 10 истинно, то person.salary() не вызывается.
+
+К генерации некоторого исключения могут привести следующие элементы:
+
+1. Обращение к функциям-членам объекта Person:
+    person.name()
+    person.grade()
+    person.salary()
+    person.id()
+
+2. Операция вывода в поток при включённых исключениях для потока.
+    std::cout << " test : " << person.name() << '\n'
+
+3. Вызов функции save в зависимости от реализации может генерировать исключения.
+    save(Status::success, person.id())
+    save(Status::failure, person.id())
