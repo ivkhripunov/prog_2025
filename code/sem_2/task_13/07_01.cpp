@@ -2,6 +2,7 @@
 // Created by khripunov on 13.09.2025.
 //
 
+#include <gtest/gtest.h>
 #include <iostream>
 #include <cmath>
 #include <limits>
@@ -51,22 +52,9 @@ using Variant = std::variant<OneRootType, TwoRootsType, InfRootsType>;
     return std::nullopt;
 }
 
-int main() {
-    auto test = [](double a, double b, double c) {
-        auto result = solve(a, b, c);
-        if (!result.has_value()) std::cout << "Нет решений\n";
-        else if (std::holds_alternative<std::monostate>(*result)) std::cout << "Бесконечно много\n";
-        else if (std::holds_alternative<double>(*result)) std::cout << "Один корень: " << std::get<double>(*result) << "\n";
-        else {
-            auto [x1, x2] = std::get<std::pair<double, double>>(*result);
-            std::cout << "Два корня: " << x1 << " " << x2 << "\n";
-        }
-    };
-
-    test(0, 0, 0);
-    test(1, -2, 1);
-    test(1, -3, 2);
-    test(0, 0, 1);
-
-    return 0;
+TEST(SOLVER, ALL_TESTS) {
+    ASSERT_TRUE(std::holds_alternative<InfRootsType>(*solve(0, 0, 0)));
+    ASSERT_TRUE(std::holds_alternative<OneRootType>(*solve(1, -2, 1)));
+    ASSERT_TRUE(std::holds_alternative<TwoRootsType>(*solve(1, -3, 2)));
+    ASSERT_FALSE(solve(0, 0, 1).has_value());
 }
