@@ -23,7 +23,7 @@ using Variant = std::variant<OneRootType, TwoRootsType, InfRootsType>;
     if (isLinear) {
         if (std::abs(b) < eps) {
             if (std::abs(c) < eps) {
-                return Variant(std::monostate{});
+                return Variant(InfRootsType{});
             }
 
             return std::nullopt;
