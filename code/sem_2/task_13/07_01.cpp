@@ -13,23 +13,23 @@ using OneRootType = double;
 using TwoRootsType = std::pair<double, double>;
 using InfRootsType = std::monostate;
 
-using Variant = std::variant<OneRootType, TwoRootsType, InfRootsType>;
+using VariantType = std::variant<OneRootType, TwoRootsType, InfRootsType>;
 
-[[nodiscard]] std::optional<Variant> solve(const double a, const double b, const double c) {
+[[nodiscard]] std::optional<VariantType> solve(const double a, const double b, const double c) {
     constexpr double eps = std::numeric_limits<double>::epsilon() * 100;
     const bool isLinear = std::abs(a) < eps;
 
     if (isLinear) {
         if (std::abs(b) < eps) {
             if (std::abs(c) < eps) {
-                return Variant(InfRootsType{});
+                return VariantType(InfRootsType{});
             }
 
             return std::nullopt;
         }
 
         const double x = -c / b;
-        return Variant(x);
+        return VariantType(x);
     }
 
     const double Q1 = b / a / 2;
@@ -38,14 +38,14 @@ using Variant = std::variant<OneRootType, TwoRootsType, InfRootsType>;
 
     if (std::abs(D) < eps) {
         const double root = -Q1;
-        return Variant(root);
+        return VariantType(root);
     }
 
     if (D > 0) {
         const double sqrtD = std::sqrt(D);
         const double root_1 = -Q1 + sqrtD;
         const double root_2 = -Q1 - sqrtD;
-        return Variant(std::make_pair(root_1, root_2));
+        return VariantType(std::make_pair(root_1, root_2));
     }
 
     return std::nullopt;
