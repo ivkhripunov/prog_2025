@@ -1,10 +1,6 @@
-// 06.17.cpp (главный исполняемый файл)
-#include <functional>
-#include <vector>
 #include <iostream>
 #include <string>
 #include <boost/dll.hpp>
-#include <boost/filesystem.hpp>
 
 namespace fs = boost::filesystem;
 
