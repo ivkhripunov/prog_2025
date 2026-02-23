@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.28)
 project(prog_2025)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
 
 add_subdirectory(third_party/googletest)
+
+find_package(benchmark REQUIRED)
 
 include(CTest)
 enable_testing()
@@ -45,6 +47,15 @@ foreach(cpp_file ${ALL_CPP_FILES})
     add_executable(${target_name} ${cpp_file})
     target_include_directories(${target_name} PRIVATE ${target_dir} ${Boost_INCLUDE_DIRS})
     target_link_libraries(${target_name} GTest::gtest GTest::gtest_main ${Boost_LIBRARIES})
+
+    target_link_libraries(${target_name}
+            GTest::gtest
+            GTest::gtest_main
+            benchmark::benchmark
+            pthread
+            ${Boost_LIBRARIES}
+    )
+
     set_target_properties(${target_name} PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
     )
