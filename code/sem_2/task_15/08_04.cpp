@@ -38,24 +38,24 @@ int main() {
 
     std::array<std::string, COPIES> offspring;
 
-    for (std::size_t generation = 1;; ++generation) {
-        const auto update = [&]() -> std::string {
-            std::string child = current;
-            for (char &c: child)
-                if (chance(rng) < MUT_RATE)
-                    c = static_cast<char>('a' + letter(rng));
-            return child;
-        };
+    const auto update = [&]() -> std::string {
+        std::string child = current;
+        for (char &c: child)
+            if (chance(rng) < MUT_RATE)
+                c = static_cast<char>('a' + letter(rng));
+        return child;
+    };
 
+    const auto cmp = [&divergence](const std::string &a, const std::string &b) -> bool {
+        return divergence(a) < divergence(b);
+    };
+
+    for (std::size_t generation = 1;; ++generation) {
         std::ranges::generate(offspring, update);
 
-        const auto cmp = [&divergence](const std::string &a, const std::string &b) -> bool {
-            return divergence(a) < divergence(b);
-        };
-
-        std::string best = *std::ranges::min_element(offspring, cmp);
-
-        const std::size_t best_div = divergence(best);
+        const auto best_it = std::ranges::min_element(offspring, cmp);
+        std::string best = std::move(*best_it);
+        const auto best_div = divergence(best);
 
         std::cout << "Gen " << generation << ": " << best << "  divergence=" << best_div << "\n";
 
