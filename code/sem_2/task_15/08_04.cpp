@@ -13,13 +13,13 @@ int main() {
     constexpr std::size_t COPIES = 100;
     constexpr double MUT_RATE = 0.05;
 
-    const auto divergence = [&TARGET](const std::string &s) -> std::size_t {
+    const auto divergence = [&TARGET](const std::string &s) {
         const auto pred = [](const auto &pair) {
             const auto &[first, second] = pair;
             return first != second;
         };
 
-        return std::ranges::count_if(std::views::zip(s, TARGET), pred);
+        return static_cast<std::size_t>(std::ranges::count_if(std::views::zip(s, TARGET), pred));
     };
 
     std::random_device rd;
@@ -36,9 +36,9 @@ int main() {
     std::cout << "Target : " << TARGET << "\n";
     std::cout << "Start  : " << current << "  divergence=" << divergence(current) << "\n\n";
 
-    for (std::size_t generation = 1;; ++generation) {
-        std::array<std::string, COPIES> offspring;
+    std::array<std::string, COPIES> offspring;
 
+    for (std::size_t generation = 1;; ++generation) {
         const auto update = [&]() -> std::string {
             std::string child = current;
             for (char &c: child)
@@ -53,7 +53,7 @@ int main() {
             return divergence(a) < divergence(b);
         };
 
-        const std::string best = *std::ranges::min_element(offspring, cmp);
+        std::string best = *std::ranges::min_element(offspring, cmp);
 
         const std::size_t best_div = divergence(best);
 
@@ -61,7 +61,7 @@ int main() {
 
         if (best_div == 0) break;
 
-        current = best;
+        current = std::move(best);
     }
 
     std::cout << "\nReached target: " << TARGET << "\n";
