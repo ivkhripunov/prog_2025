@@ -11,7 +11,7 @@
 
 // Побитовый сдвиг эквивалентен делению пополам.
 // Делаем сдвиги, набираем степень, пока значение больше 1.
-int log_int(const int n) {
+[[nodiscard]] int log_int(const int n) {
     auto val = static_cast<unsigned int>(n);
 
     int result = 0;
@@ -23,7 +23,7 @@ int log_int(const int n) {
 }
 
 
-int log_floor(const float x) {
+[[nodiscard]] int log_floor(const float x) {
     union {
         float f;
         unsigned int u;
@@ -53,14 +53,14 @@ int log_floor(const float x) {
 }
 
 TEST(task_08_03, pow_2) {
-    EXPECT_EQ(log_int(1),    0);
+    EXPECT_EQ(log_int(1), 0);
     EXPECT_EQ(log_int(1024), 10);
-    EXPECT_EQ(log_floor(1.0f),   0);
+    EXPECT_EQ(log_floor(1.0f), 0);
     EXPECT_EQ(log_floor(0.25f), -2);
 }
 
 TEST(task_08_03, round_down) {
-    EXPECT_EQ(log_int(7),       2);
+    EXPECT_EQ(log_int(7), 2);
     EXPECT_EQ(log_floor(0.75f), -1);
 }
 
@@ -76,9 +76,9 @@ TEST(task_08_03, denormalized) {
     EXPECT_EQ(log_floor(min_denorm), -149);
 }
 
-TEST(FloorLog2, bad_input) {
+TEST(task_08_03, bad_input) {
     unsigned int bits_inf = 0x7F800000U;
     float inf_val;
     memcpy(&inf_val, &bits_inf, sizeof(inf_val));
-    ASSERT_ANY_THROW(const int x = log_floor(inf_val));
+    ASSERT_ANY_THROW([[maybe_unused]] auto x = log_floor(inf_val));
 }
