@@ -2,57 +2,64 @@
 // Created by ivan on 08.03.2026.
 //
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <random>
 #include <algorithm>
-
-static const std::string TARGET = "methinksitislikeaweasel";
-static const int COPIES = 100;
-static const double MUT_RATE = 0.05;
-
-int divergence(const std::string &s) {
-    int diff = 0;
-    for (size_t i = 0; i < s.size(); ++i)
-        if (s[i] != TARGET[i]) ++diff;
-    return diff;
-}
+#include <iostream>
+#include <format>
+#include <random>
+#include <ranges>
+#include <string>
 
 int main() {
-    const size_t LEN = TARGET.size();
+    const std::string TARGET = "methinksitislikeaweasel";
+    constexpr std::size_t COPIES = 100;
+    constexpr double MUT_RATE = 0.05;
+
+    const auto divergence = [&TARGET](const std::string &s) -> std::size_t {
+        const auto pred = [](const auto &pair) {
+            const auto &[first, second] = pair;
+            return first != second;
+        };
+
+        return std::ranges::count_if(std::views::zip(s, TARGET), pred);
+    };
 
     std::random_device rd;
     std::default_random_engine rng(rd());
-    std::uniform_int_distribution<> letter(0, 25);
-    std::uniform_real_distribution<> chance(0.0, 1.0);
+    std::uniform_int_distribution letter(0, 25);
+    std::uniform_real_distribution chance(0.0, 1.0);
 
-    std::string current(LEN, ' ');
-    for (char &c: current)
-        c = static_cast<char>('a' + letter(rng));
+    std::string current(TARGET.size(), ' ');
+
+    std::ranges::generate(current, [&]() -> char {
+        return static_cast<char>('a' + letter(rng));
+    });
 
     std::cout << "Target : " << TARGET << "\n";
     std::cout << "Start  : " << current << "  divergence=" << divergence(current) << "\n\n";
 
-    for (int generation = 1; ; ++generation) {
-        std::vector<std::string> offspring(COPIES);
-        for (std::string &child: offspring) {
-            child = current;
+    for (std::size_t generation = 1;; ++generation) {
+        std::array<std::string, COPIES> offspring;
+
+        const auto update = [&]() -> std::string {
+            std::string child = current;
             for (char &c: child)
                 if (chance(rng) < MUT_RATE)
                     c = static_cast<char>('a' + letter(rng));
-        }
+            return child;
+        };
 
-        const std::string &best = *std::min_element(
-            offspring.begin(), offspring.end(),
-            [](const std::string &a, const std::string &b) {
-                return divergence(a) < divergence(b);
-            });
+        std::ranges::generate(offspring, update);
 
-        int bestDiv = divergence(best);
-        std::cout << "Gen " << generation << ": " << best << "  divergence=" << bestDiv << "\n";
+        const auto cmp = [&divergence](const std::string &a, const std::string &b) -> bool {
+            return divergence(a) < divergence(b);
+        };
 
-        if (bestDiv == 0) break;
+        const std::string best = *std::ranges::min_element(offspring, cmp);
+
+        const std::size_t best_div = divergence(best);
+        std::cout << "Gen " << generation << ": " << best << "  divergence = " << best_div << "\n";
+
+        if (best_div == 0) break;
 
         current = best;
     }
