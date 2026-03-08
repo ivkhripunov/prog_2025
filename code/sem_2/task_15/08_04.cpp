@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <format>
 #include <random>
 #include <ranges>
 #include <string>
@@ -57,7 +56,8 @@ int main() {
         const std::string best = *std::ranges::min_element(offspring, cmp);
 
         const std::size_t best_div = divergence(best);
-        std::cout << "Gen " << generation << ": " << best << "  divergence = " << best_div << "\n";
+
+        std::cout << "Gen " << generation << ": " << best << "  divergence=" << best_div << "\n";
 
         if (best_div == 0) break;
 
