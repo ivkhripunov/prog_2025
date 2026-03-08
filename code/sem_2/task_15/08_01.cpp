@@ -25,7 +25,7 @@ TEST(task_08_01, reinterpret) {
     Entity_v1 entity_v1(10);
     ASSERT_EQ(entity_v1.v1(), 10);
 
-    Entity_v2& entity_v2 = reinterpret_cast<Entity_v2&>(entity_v1);
+    Entity_v2 &entity_v2 = reinterpret_cast<Entity_v2 &>(entity_v1);
     entity_v2.v2 = 100;
 
     ASSERT_EQ(entity_v1.v1(), 100);
