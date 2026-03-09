@@ -169,57 +169,46 @@ private :
     T m_num = 0, m_den = 1;
 };
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-auto equal(double x, double y, double epsilon = 1e-6) {
-    return std::abs(x - y) < epsilon;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 int main() {
-    try {
-        Rational r(1, 0);
-    } catch (const Exception &e) {
-        std::cerr << "Caught Exception: " << e.what() << std::endl;
-    }
+    auto try_catch = [](auto &&fn) {
+        try {
+            fn();
+        } catch (const std::exception &e) {
+            std::cerr << "Caught exception: " << e.what() << std::endl;
+        } catch (...) {
+            std::cerr << "Caught unknown exception" << std::endl;
+        }
+    };
 
-    try {
+    try_catch([] { Rational r(1, 0); });
+
+    try_catch([] {
         std::vector<int> v;
         v.reserve(std::numeric_limits<size_t>::max());
-    } catch (const std::length_error &e) {
-        std::cerr << "Caught length_error: " << e.what() << std::endl;
-    }
+    });
 
-    try {
+    try_catch([] {
         size_t n = 1000000000000;
         int *p = new int[n];
         delete[] p;
-    } catch (const std::bad_alloc &e) {
-        std::cerr << "Caught bad_alloc: " << e.what() << std::endl;
-    }
+    });
 
-    try {
+    try_catch([] {
         std::variant<int, double> v = 328;
         std::get<double>(v);
-    } catch (const std::bad_variant_access &e) {
-        std::cerr << "Caught bad_variant_access: " << e.what() << std::endl;
-    }
+    });
 
-    try {
+    try_catch([] {
         std::optional<int> opt;
         opt.value();
-    } catch (const std::bad_optional_access &e) {
-        std::cerr << "Caught bad_optional_access: " << e.what() << std::endl;
-    }
+    });
 
-    try {
+    try_catch([] {
         std::vector vec = {1, 2, 3};
         vec.at(10);
-    } catch (const std::out_of_range &e) {
-        std::cerr << "Caught out_of_range: " << e.what() << std::endl;
-    }
+    });
 
     return 0;
 
