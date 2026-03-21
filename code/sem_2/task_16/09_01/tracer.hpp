@@ -6,7 +6,7 @@
 class Tracer {
 public:
     explicit Tracer(
-        std::source_location loc = std::source_location::current()) noexcept
+        const std::source_location &loc = std::source_location::current()) noexcept
         : loc_(loc) {
         std::cout << "[TRACE] START "
                 << loc_.function_name()
