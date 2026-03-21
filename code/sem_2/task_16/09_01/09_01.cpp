@@ -4,38 +4,38 @@
 
 void direct_usage() {
     Tracer t;
-    std::cout << "тело функции\n";
+    std::cout << "function internals\n";
 }
 
 void macro_usage() {
     trace();
-    std::cout << "тело функции\n";
+    std::cout << "function internals\n";
 }
 
 void early_return(const bool flag) {
     trace();
     if (flag) {
-        std::cout << "ранний выход\n";
+        std::cout << "early exit\n";
         return;
     }
-    std::cout << "нормальный выход\n";
+    std::cout << "normal exit\n";
 }
 
 void throwing_func() {
     trace();
-    throw std::runtime_error("тестовое исключение");
+    throw std::runtime_error("test exception");
 }
 
 void inner() {
     trace();
-    std::cout << "тело функции\n";
+    std::cout << "function internals\n";
 }
 
 void outer() {
     trace();
-    std::cout << "вызывается inner()\n";
+    std::cout << "call inner()\n";
     inner();
-    std::cout << "inner() завершилась\n";
+    std::cout << "inner() finished\n";
 }
 
 int main() {
@@ -50,7 +50,7 @@ int main() {
     try {
         throwing_func();
     } catch (const std::exception &e) {
-        std::cout << "поймано: " << e.what() << '\n';
+        std::cout << "catched: " << e.what() << '\n';
     }
 
     outer();
