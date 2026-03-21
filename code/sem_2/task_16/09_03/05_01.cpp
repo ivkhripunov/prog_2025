@@ -15,33 +15,29 @@
 ////////////////////////////////////////////////////
 
 #include <cassert>
+#include <memory>
 
 ////////////////////////////////////////////////////
 
-struct Entity
-{
+struct Entity {
     int x = 0, y = 0;
 };
 
 ////////////////////////////////////////////////////
 
-class Builder
-{
+class Builder {
 public :
-
     virtual ~Builder() = default;
 
     //  -------------------------------
 
-    auto make_entity()
-    {
-        m_entity = new Entity;
-
+    std::unique_ptr<Entity> make_entity() {
+        auto entity = std::make_unique<Entity>();
+        m_entity = entity.get();
         set_x();
-
         set_y();
-
-        return m_entity;
+        m_entity = nullptr;
+        return entity;
     }
 
     //  -------------------------------
@@ -51,16 +47,13 @@ public :
     virtual void set_y() const = 0;
 
 protected :
-
-    Entity * m_entity = nullptr;
+    Entity *m_entity = nullptr;
 };
 
 ////////////////////////////////////////////////////
 
-class Builder_Client : public Builder
-{
+class Builder_Client : public Builder {
 public :
-
     void set_x() const override { m_entity->x = 1; }
 
     void set_y() const override { m_entity->y = 1; }
@@ -68,10 +61,8 @@ public :
 
 ////////////////////////////////////////////////////
 
-class Builder_Server : public Builder
-{
+class Builder_Server : public Builder {
 public :
-
     void set_x() const override { m_entity->x = 1; }
 
     void set_y() const override { m_entity->y = 1; }
@@ -79,15 +70,16 @@ public :
 
 ////////////////////////////////////////////////////
 
-int main()
-{
-    Builder * builder = new Builder_Client;
+int main() {
+    const auto builder = std::make_unique<Builder_Client>();
+    const auto entity = builder->make_entity();
 
-    //  ---------------------------------------
-
-    delete builder->make_entity();
-
-    delete builder;
+    assert(entity->x == 1 && entity->y == 1);
 }
+
+// В этом примере использовался unique_ptr.
+// make_entity() создаёт объект и передаёт владение вызывающему коду.
+// m_entity не владеет объектом, а лишь временно указывает на него
+// во время вызовов set_x и set_y, после чего обнуляется.
 
 ////////////////////////////////////////////////////

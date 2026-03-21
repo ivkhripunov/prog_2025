@@ -15,75 +15,52 @@
 #include <cassert>
 #include <cstddef>
 #include <vector>
+#include <memory>
 
 ///////////////////////////////////////////////////////////////////////
 
-class Entity
-{
+class Entity {
 public :
-
     virtual ~Entity() = default;
 
-//  -----------------------------
+    //  -----------------------------
 
-    virtual int test() const = 0;
+    [[nodiscard]] virtual int test() const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-class Client : public Entity
-{
+class Client : public Entity {
 public :
-
-    int test() const override
-    {
+    [[nodiscard]] int test() const override {
         return 1;
     }
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-class Server : public Entity
-{
+class Server : public Entity {
 public :
-
-    int test() const override
-    {
+    [[nodiscard]] int test() const override {
         return 2;
     }
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-class Composite : public Entity
-{
+class Composite : public Entity {
 public :
-
-   ~Composite()
-    {
-        for (auto entity : m_entities)
-        {
-            delete entity;
-        }
+    void add(std::unique_ptr<Entity> entity) {
+        m_entities.push_back(std::move(entity));
     }
 
-//  ------------------------------------
+    //  ------------------------------------
 
-    void add(Entity * entity)
-    {
-        m_entities.push_back(entity);
-    }
-
-//  ------------------------------------
-
-    int test() const override
-    {
+    [[nodiscard]] int test() const override {
         auto x = 0;
 
-        for (auto entity : m_entities)
-        {
-            if (entity)
-            {
+        for (const auto &entity: m_entities) {
+            if (entity) {
                 x += entity->test();
             }
         }
@@ -92,47 +69,37 @@ public :
     }
 
 private :
-
-    std::vector < Entity * > m_entities;
+    std::vector<std::unique_ptr<Entity> > m_entities;
 };
 
 ///////////////////////////////////////////////////////////////////////
 
-auto make_composite(std::size_t size_1, std::size_t size_2) -> Entity *
-{
-    auto composite = new Composite;
-
-    for (auto i = 0uz; i < size_1; ++i) { composite->add(new Client); }
-
-    for (auto i = 0uz; i < size_2; ++i) { composite->add(new Server); }
-
+auto make_composite(const std::size_t size_1, const std::size_t size_2) -> std::unique_ptr<Entity> {
+    auto composite = std::make_unique<Composite>();
+    for (std::size_t i = 0; i < size_1; ++i) {
+        composite->add(std::make_unique<Client>());
+    }
+    for (std::size_t i = 0; i < size_2; ++i) {
+        composite->add(std::make_unique<Server>());
+    }
     return composite;
 }
 
 ///////////////////////////////////////////////////////////////////////
 
-int main()
-{
-    auto composite = new Composite;
+int main() {
+    auto composite = std::make_unique<Composite>();
 
-//  -----------------------------------------
-
-    for (auto i = 0uz; i < 5; ++i)
-    {
+    for (std::size_t i = 0; i < 5; ++i) {
         composite->add(make_composite(1, 1));
     }
 
-//  -----------------------------------------
-
-    Entity * entity = composite;
-
-//  -----------------------------------------
-
+    const Entity *entity = composite.get();
     assert(entity->test() == 15);
-
-//  -----------------------------------------
-
-    delete entity;
 }
+
+// В этом примере также использовался unique_ptr.
+// add() принимает unique_ptr<Entity> по значению и забирает владение через std::move.
+// Деструктор ~Composite удалён, так как вектор сам освобождает узлы.
 
 ///////////////////////////////////////////////////////////////////////
