@@ -1,5 +1,6 @@
-#include "tracer.hpp"
 #include <stdexcept>
+
+#include "tracer.hpp"
 
 void direct_usage() {
     Tracer t;
