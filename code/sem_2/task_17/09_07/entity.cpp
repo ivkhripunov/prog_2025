@@ -8,10 +8,10 @@
 
 class Entity::Implementation {
 public :
-    explicit Implementation(int id = 0, int value = 42)
+    explicit Implementation(const int id = 0, const int value = 100)
         : m_id{id}
           , m_value{value} {
-        std::cout << "[Implementation] сконструирован  id=" << m_id
+        std::cout << "Implementation сконструирован  id=" << m_id
                 << "  value=" << m_value << '\n';
     }
 
@@ -20,19 +20,19 @@ public :
     Implementation(Implementation &&other) noexcept
         : m_id{other.m_id}
           , m_value{other.m_value} {
-        std::cout << "[Implementation] перемещён  id=" << m_id << '\n';
+        std::cout << "Implementation перемещён  id=" << m_id << '\n';
     }
 
     //  -------------------------------------
 
     ~Implementation() {
-        std::cout << "[Implementation] уничтожен  id=" << m_id << '\n';
+        std::cout << "Implementation уничтожен  id=" << m_id << '\n';
     }
 
     //  -------------------------------------
 
     void test() const {
-        std::cout << "[Implementation] test()  id=" << m_id
+        std::cout << "Implementation test()  id=" << m_id
                 << "  value=" << m_value << '\n';
     }
 
@@ -100,6 +100,18 @@ Entity &Entity::operator=(Entity &&other) noexcept {
 void Entity::test() const {
     get()->test();
 }
+
+/// Оригинальный паттерн PIMPL заключается в том, что все внутренности прячутся в отдельный класс,
+/// хранится только указатель на него. Это позволяет изменть детали реализации внутренностей, при этом
+/// не перекомпилируя части проекта, включающие этот заголовочный файл.
+/// Накладные расходы оригинального подхода заключаются в следующем.
+/// 1. При создании и уничтожении владельца вызывается ресурсоемкий ::operator new / ::operator delete.
+///
+/// 2. Владелец и Pimpl находятся в разных блоках кучи.
+/// Это приводит к кэш-промаху на первых вызовах после конструирования.
+///
+/// 3. Для доступа к полю требуется одно дополнительное чтения памяти.
+/// Из за этого предсказатель ветвлений может работать хуже.
 
 int main() {
     {
