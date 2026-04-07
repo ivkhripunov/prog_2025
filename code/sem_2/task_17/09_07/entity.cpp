@@ -70,13 +70,11 @@ const Entity::Implementation *Entity::get() const noexcept {
 
 Entity::Entity() {
     static_assert(
-        sizeof(Implementation) <= sizeof (m_storage),
-        "Entity::Implementation не помещается в m_storage"
+        sizeof(Implementation) <= sizeof (m_storage)
     );
 
     static_assert(
-        alignof(Implementation) <= alignof(std::max_align_t),
-        "Entity::Implementation требует более строгого выравнивания"
+        alignof(Implementation) <= alignof(std::max_align_t)
     );
 
     ::new(m_storage.data()) Implementation();
