@@ -4,53 +4,53 @@
 
 class Entity {
 public :
-    auto operator new(const std::size_t size) -> void * {
+    static auto operator new(const std::size_t size) -> void * {
         std::print("Entity::operator new\n");
 
         return ::operator new(size);
     }
 
-    void operator delete(void *ptr) {
+    static void operator delete(void *ptr) {
         std::print("Entity::operator delete\n");
 
         ::operator delete(ptr);
     }
 
-    auto operator new[](const std::size_t size) -> void * {
+    static auto operator new[](const std::size_t size) -> void * {
         std::print("Entity::operator new[]\n");
 
         return ::operator new[](size);
     }
 
-    void operator delete[](void *ptr) {
+    static void operator delete[](void *ptr) {
         std::print("Entity::operator delete[]\n");
 
         ::operator delete[](ptr);
     }
 
-    auto operator new(const std::size_t size,
-                      const std::nothrow_t &) noexcept -> void * {
+    static auto operator new(const std::size_t size,
+                             const std::nothrow_t &) noexcept -> void * {
         std::print("Entity::operator new nothrow\n");
 
         return ::operator new(size, std::nothrow);
     }
 
-    void operator delete(void *ptr,
-                         const std::nothrow_t &) noexcept {
+    static void operator delete(void *ptr,
+                                const std::nothrow_t &) noexcept {
         std::print("Entity::operator delete nothrow\n");
 
         ::operator delete(ptr, std::nothrow);
     }
 
-    auto operator new[](const std::size_t size,
-                        const std::nothrow_t &) noexcept -> void * {
+    static auto operator new[](const std::size_t size,
+                               const std::nothrow_t &) noexcept -> void * {
         std::print("Entity::operator new[] nothrow\n");
 
         return ::operator new[](size, std::nothrow);
     }
 
-    void operator delete[](void *ptr,
-                           const std::nothrow_t &) noexcept {
+    static void operator delete[](void *ptr,
+                                  const std::nothrow_t &) noexcept {
         std::print("Entity::operator delete[] nothrow\n");
 
         ::operator delete[](ptr, std::nothrow);
