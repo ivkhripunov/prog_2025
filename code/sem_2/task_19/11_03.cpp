@@ -117,3 +117,5 @@ TEST(TASK_09_04, lambda) {
 
     ASSERT_TRUE(std::ranges::is_sorted(v, cmp));
 }
+
+// Score is 9/10
