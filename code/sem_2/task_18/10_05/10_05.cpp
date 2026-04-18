@@ -159,8 +159,9 @@ int main() {
     {
         1000, 2000, 5000, 10000, 20000, 50000, 100000
     };
-
-    using fn_t = unsigned int (*)(const std::string &);
+	// More smooth graph is required for example record collision data every 1000 step, 100 points on the x axis
+	
+    using fn_t = unsigned int (*)(const std::string &); // use std::function
 
     const std::vector<std::pair<const char *, fn_t> > fns =
     {
@@ -176,7 +177,7 @@ int main() {
     };
 
     std::cout << "n";
-    for (const auto &name: fns | std::views::keys) std::cout << ',' << name;
+    for (const auto &name: fns | std::views::keys) std::cout << ',' << name; // for(const auto& [hash_name, hash_function]: fns) is more clear
     std::cout << '\n';
 
     for (const auto n: ns) {
@@ -184,7 +185,7 @@ int main() {
         strings.reserve(n);
 
         for (auto i = 0uz; i < n; ++i)
-            strings.push_back("word_" + std::to_string(i));
+            strings.push_back("word_" + std::to_string(i)); // All strings must be unique, they consists of 'a' to 'z', and of the same length 
 
         std::cout << n;
 
@@ -244,3 +245,20 @@ int main() {
 // различаться качеством распределения в старших битах. Здесь SDBM проигрывает.
 
 ////////////////////////////////////////////////////////////////////////////////
+
+
+/*
+ * 
+ * Score is 5/10
+ * You can resubmit and change to 9/10, if you want
+ * 
+ * Your process is correct, you export the data file and plot it correctly
+ * 
+ * But
+ * 
+ * Your result does not align to what is expected, we expect 1-30 collisions not 40k
+ * It is most probably beacuse, your string generator is not correct
+ * You can take the string generator from the Teacher's template: https://github.com/i-s-m-mipt/Education/blob/master/projects/examples/source/10.42.cpp
+ * 
+ * If you want to see a sample of results, you can look https://github.com/kafishabbir/hash-functions
+ */
