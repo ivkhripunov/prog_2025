@@ -1,38 +1,58 @@
-import subprocess
-import csv
-import io
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
-result = subprocess.run(["/home/ivan/code/prog_2025/10_05"], capture_output=True, text=True)
+CSV_PATH = "/home/ivan/code/prog_2025/code/sem_2/task_18/10_05/collisions.csv"
+PNG_PATH = "/home/ivan/code/prog_2025/code/sem_2/task_18/10_05/collisions.png"
 
-reader = csv.DictReader(io.StringIO(result.stdout))
-rows = list(reader)
-
-names = reader.fieldnames[1:]
-ns = [int(row["n"]) for row in rows]
+data  = np.genfromtxt(CSV_PATH, delimiter=",", names=True, dtype=None, encoding="utf-8")
+names = list(data.dtype.names[1:])  # skip "n"
+ns    = data["n"]
 
 colors = [
-    "#3266ad", "#e05c2a", "#2e9e75", "#9b59b6",
-    "#c0392b", "#e67e22", "#d4ac0d", "#e91e8c", "#73726c",
+    "#3266ad",  # RS
+    "#e05c2a",  # JS
+    "#2e9e75",  # PJW
+    "#9b59b6",  # ELF
+    "#c0392b",  # BKDR
+    "#e67e22",  # SDBM
+    "#d4ac0d",  # DJB
+    "#e91e8c",  # DEK
+    "#73726c",  # AP
 ]
 
-dashes = [
-    (None, None), (6, 3), (None, None), (6, 3),
-    (None, None), (4, 4), (None, None), (8, 3), (3, 3),
-]
+linestyles = ["-", "--", "-", "--", "-", "--", "-", "--", "-"]
 
-fig, ax = plt.subplots(figsize=(10, 6))
+fig, ax = plt.subplots(figsize=(11, 6))
+
+ns_theory = np.linspace(0, ns[-1], 500)
+ax.plot(
+    ns_theory,
+    ns_theory ** 2 / (2 * 2 ** 32),
+    color="black",
+    linestyle=":",
+    linewidth=1.5,
+    label="Theory N²/2M",
+    )
 
 for i, name in enumerate(names):
-    ys = [int(row[name]) for row in rows]
-    ls = "--" if dashes[i][0] else "-"
-    ax.plot(ns, ys, label=name, color=colors[i], linestyle=ls, linewidth=2, marker="o", markersize=4)
+    ax.plot(
+        ns, data[name],
+        label=name,
+        color=colors[i],
+        linestyle=linestyles[i],
+        linewidth=2,
+        marker="o",
+        markersize=3,
+        markevery=50,
+    )
 
-ax.set_xlabel("Число строк", fontsize=12)
+ax.set_xlabel("Число строк (N)", fontsize=12)
 ax.set_ylabel("Коллизии", fontsize=12)
-ax.set_title("Коллизии хеш-функций", fontsize=13)
+ax.set_title("Коллизии хеш-функций. Случайные строки длины 10", fontsize=13)
 ax.legend(ncol=3, fontsize=10)
 ax.grid(True, linestyle="--", alpha=0.4)
+ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{int(x):,}"))
 fig.tight_layout()
-plt.savefig("collisions.png", dpi=150)
+plt.savefig(PNG_PATH, dpi=150)
+print(f"Saved {PNG_PATH}")
