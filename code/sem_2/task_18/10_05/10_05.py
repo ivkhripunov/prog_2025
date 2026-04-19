@@ -36,6 +36,7 @@ ax.plot(
     )
 
 for i, name in enumerate(names):
+    #if name in ['PJW', 'ELF']: continue
     ax.plot(
         ns, data[name],
         label=name,
@@ -49,7 +50,7 @@ for i, name in enumerate(names):
 
 ax.set_xlabel("Число строк (N)", fontsize=12)
 ax.set_ylabel("Коллизии", fontsize=12)
-ax.set_title("Коллизии хеш-функций. Случайные строки длины 10", fontsize=13)
+ax.set_title("Коллизии хеш-функций. Случайные строки длины 50", fontsize=13)
 ax.legend(ncol=3, fontsize=10)
 ax.grid(True, linestyle="--", alpha=0.4)
 ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, _: f"{int(x):,}"))
