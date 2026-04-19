@@ -1,6 +1,11 @@
+#include <array>
+#include <cstddef>
+#include <fstream>
 #include <iostream>
-#include <ranges>
+#include <random>
+#include <set>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,67 +138,99 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-[[nodiscard]] static std::size_t collisions(const std::vector<std::string> &strings,
-                                            unsigned int (*fn)(const std::string &),
-                                            const unsigned int table_size) {
-    std::vector occupied(table_size, false);
+[[nodiscard]] std::vector<std::string> make_strings(const std::size_t count,
+                                                    const std::size_t length) {
+    std::set<std::string> pool;
+    std::string s(length, '_');
 
-    std::size_t count = 0;
+    std::uniform_int_distribution dist(97, 122);
+    std::default_random_engine engine;
 
-    for (const auto &s: strings) {
-        const auto bucket = fn(s) % table_size;
+    while (pool.size() < count) {
+        for (auto &ch: s)
+            ch = dist(engine);
 
-        if (occupied[bucket]) ++count;
-        else occupied[bucket] = true;
+        pool.insert(s);
     }
 
-    return count;
+    return {pool.begin(), pool.end()};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 int main() {
-    constexpr unsigned int table_size = 100003;
+    constexpr std::size_t total = 1u << 20;
+    constexpr std::size_t str_len = 50;
+    constexpr std::size_t step = 1u << 10;
 
-    const std::vector<std::size_t> ns =
-    {
-        1000, 2000, 5000, 10000, 20000, 50000, 100000
-    };
-	// More smooth graph is required for example record collision data every 1000 step, 100 points on the x axis
-	
-    using fn_t = unsigned int (*)(const std::string &); // use std::function
+    // -------------------------------------------------------------------------
 
-    const std::vector<std::pair<const char *, fn_t> > fns =
+    const auto strings = make_strings(total, str_len);
+
+    // -------------------------------------------------------------------------
+
+    using fn_t = unsigned int (*)(const std::string &);
+
+    constexpr std::size_t num_fns = 9;
+
+    constexpr std::array<const char *, num_fns> names =
     {
-        {"RS", RS_hash},
-        {"JS", JS_hash},
-        {"PJW", PJW_hash},
-        {"ELF", ELF_hash},
-        {"BKDR", BKDR_hash},
-        {"SDBM", SDBM_hash},
-        {"DJB", DJB_hash},
-        {"DEK", DEK_hash},
-        {"AP", AP_hash},
+        "RS", "JS", "PJW", "ELF", "BKDR", "SDBM", "DJB", "DEK", "AP"
     };
 
-    std::cout << "n";
-    for (const auto &name: fns | std::views::keys) std::cout << ',' << name; // for(const auto& [hash_name, hash_function]: fns) is more clear
-    std::cout << '\n';
+    constexpr std::array<fn_t, num_fns> fns =
+    {
+        RS_hash, JS_hash, PJW_hash, ELF_hash,
+        BKDR_hash, SDBM_hash, DJB_hash, DEK_hash, AP_hash
+    };
 
-    for (const auto n: ns) {
-        std::vector<std::string> strings;
-        strings.reserve(n);
+    // -------------------------------------------------------------------------
 
-        for (auto i = 0uz; i < n; ++i)
-            strings.push_back("word_" + std::to_string(i)); // All strings must be unique, they consists of 'a' to 'z', and of the same length 
+    std::array<std::unordered_set<unsigned int>, num_fns> seen;
+    std::array<std::size_t, num_fns> collisions{};
 
-        std::cout << n;
+    for (auto &s: seen)
+        s.reserve(total);
 
-        for (const auto &fn: fns | std::views::values)
-            std::cout << ',' << collisions(strings, fn, table_size);
+    // -------------------------------------------------------------------------
 
-        std::cout << '\n';
+    const std::string csv_path = "collisions.csv";
+
+    std::ofstream csv(csv_path);
+
+    // -------------------------------------------------------------------------
+
+    csv << "n";
+    for (const auto *name: names)
+        csv << ',' << name;
+    csv << '\n';
+
+    // -------------------------------------------------------------------------
+
+    for (std::size_t i = 0; i < strings.size(); ++i) {
+        for (std::size_t j = 0; j < num_fns; ++j) {
+            const unsigned int h = fns[j](strings[i]);
+
+            if (!seen[j].insert(h).second)
+                ++collisions[j];
+        }
+
+        if (i % step == 0) {
+            csv << i;
+
+            for (const auto c: collisions)
+                csv << ',' << c;
+
+            csv << '\n';
+        }
     }
+
+    csv << strings.size();
+    for (const auto c: collisions)
+        csv << ',' << c;
+    csv << '\n';
+
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -217,32 +254,59 @@ int main() {
 //
 // При N << M формула упрощается до C(N) = N² / (2M).
 //
-// До N = 5 000 большинство функций дают ноль коллизий.
-// После N = 20 000 кривые резко расходятся.
+// До N = 50 000 большинтво функций дают ноль коллизий.
+// После кривые расходятся.
 //
-// Теоретический минимум при M = 100 003 и N = 100 000: ≈ 39 350 коллизий.
+// Первая коллизия
+// -----------------------------------
+//   PJW, ELF :  23 500
+//   BKDR     :  33 800
+//   SDBM     :  49 200
+//   RS, DEK  :  57 300
+//   AP       :  95 200
+//   JS       :  99 300
+//   DJB      :  165 900
 //
-// Лучшие функции PJW и ELF. До N = 10 000 дают ноль коллизий. При N = 100 000 ближе всего к минимуму.
-// Алгоритм выталкивает старшие биты обратно в хеш через XOR, что обеспечивает
-// равномерное покрытие пространства значений, в том числе и для монотонных строк.
+// Результаты при N = 1 048 576 (по теоретической оценке должно быть 128)
+// -------------------------------------------
+//   SDBM :  120
+//   JS   :  130
+//   BKDR :  135
+//   DJB  :  138
+//   AP   :  138
+//   RS   :  150
+//   DEK  :  208
+//   PJW  : 2750
+//   ELF  : 2750
 //
-// Худшая функция DJB. Заметно хуже теоретического минимума.
-// Формула hash = hash * 33 + c при монотонных строках накапливает одинаковые
-// паттерны в старших битах. DJB хорошо работает на случайных ключах, но плохо
-// на структурированных. В исследуемом примере строки "word_0", "word_1" отличаются только в последнем
-// символе, которому DJB придаёт наименьший вес.
+// Лучшие функции: SDBM, JS, BKDR, DJB, AP
+// Все пять дают коллизии окрестности теортического минимума,
+// это признак равномерного покрытия всего пространства.
 //
-// SDBM показывает меньше коллизий, чем остальные методики при N < 50 000, но проигрывает при больших N.
+// DJB выделяется позднейшей первой коллизией (N = 166 000): мультипликатор 33
+// и аддитивная схема hash = hash * 33 + c дают хорошее рассеивание
+// на случайных строках при умеренном N.
 //
-// Формула SDBM:
+// SDBM использует мультипликатор 65 599 = 2^16 + 2^6 − 1 — простое число
+// с равномерным битовым паттерном; реализуется сдвигами без умножения:
 //
-//   hash = hash * 65599 + c
+//   hash = c + (hash << 6) + (hash << 16) − hash
 //
-// Множитель 65599 — простое число с равномерным битовым паттерном, которое
-// хорошо распределяет значения при умеренном заполнении таблицы.
+// Это обеспечивает хорошее перемешивание всех 32 бит при малых и средних N.
 //
-// При высоком N все функции упираются в физический предел таблицы и начинают
-// различаться качеством распределения в старших битах. Здесь SDBM проигрывает.
+// DEK показывает худший результат среди группы лучших.
+// hash = (hash << 5) ^ (hash >> 27) ^ c.
+// Начальное значение seed = len(str) = 50 для всех строк — константа.
+// Это сужает начальное разнообразие состояний и приводит к незначительной
+// кластеризации значений, заметной лишь при больших N.
+//
+// Худшие функции: PJW и ELF
+// PJW и ELF дают схожие резльтаты на всём диапазоне N.
+// Оба алгоритма усекают выходной диапазон, удаляя старшие биты через маску.
+// Эффективное пространство хешей: 2^28 = 268 · 10^6 вместо 2^32 = 4.3 · 10^9.
+// По парадоксу дней рождения это увеличивает ожидаемое число коллизий в
+// 2^32 / 2^28 = 16 раз, что близко к наблюдаемому значению (примерно 22 раз).
+//
 
 ////////////////////////////////////////////////////////////////////////////////
 
