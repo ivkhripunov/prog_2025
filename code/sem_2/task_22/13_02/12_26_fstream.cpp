@@ -4,8 +4,10 @@
 
 #include <gtest/gtest.h>
 #include <cmath>
+#include <fstream>
 #include <string_view>
 #include <vector>
+#include <print>
 
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/spirit/home/x3.hpp>
@@ -135,12 +137,18 @@ auto parse(std::string_view view) {
     return calculator(list);
 }
 
-TEST(CALCULATOR, MODULO) { ASSERT_DOUBLE_EQ(parse("10 % 3"), 1.0); }
+void parse_file(std::fstream &file) {
+    std::string string;
+    while (std::getline(file >> std::ws, string)) {
+        std::print("{} = {}\n", string, parse(string));
+    }
+}
 
-TEST(CALCULATOR, POWER) { ASSERT_DOUBLE_EQ(parse("2 ^ 10"), 1024.0); }
+int main() {
+    std::fstream out("test_input.txt", std::ios::out);
+    out << "2 + 3\n10 % 3\n2 ^ 10\n5!\n[2 + 3] * 4\n";
+    out.close();
 
-TEST(CALCULATOR, FACTORIAL) { ASSERT_DOUBLE_EQ(parse("5!"), 120.0); }
-
-TEST(CALCULATOR, SQUARE_BRACKETS) { ASSERT_DOUBLE_EQ(parse("[2 + 3] * 4"), 20.0); }
-
-TEST(CALCULATOR, CURLY_BRACKETS) { ASSERT_DOUBLE_EQ(parse("{4 - 1} * 3"), 9.0); }
+    std::fstream file("test_input.txt", std::ios::in);
+    parse_file(file);
+}
